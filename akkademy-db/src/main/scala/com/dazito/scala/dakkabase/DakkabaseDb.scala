@@ -1,6 +1,6 @@
 package com.dazito.scala.dakkabase
 
-import akka.actor.{Status, Actor}
+import akka.actor.{Props, ActorSystem, Status, Actor}
 import akka.actor.Actor.Receive
 import akka.event.Logging
 import com.dazito.scala.dakkabase.messages.{UnknownMessageException, KeyNotFoundException, GetRequest, SetRequest}
@@ -36,5 +36,9 @@ class DakkabaseDb extends Actor{
             Status.Failure(new UnknownMessageException())
         }
     }
+}
 
+object Main extends App {
+    val system = ActorSystem.create("dakkabase-scala")
+    system.actorOf(Props[DakkabaseDb], name = "dakkabase-db")
 }

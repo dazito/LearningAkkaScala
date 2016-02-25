@@ -51,6 +51,8 @@ class ScalaAskExampleTest extends FunSpecLike with Matchers {
             val f = askPong("causeError").recover( {
                 case t: Exception => "default" // In case of error, return "default"
             })
+
+            f should equal("default")
         }
 
         it("should recover from failure asynchronously") {
@@ -60,11 +62,13 @@ class ScalaAskExampleTest extends FunSpecLike with Matchers {
         }
 
         it("composing futures") {
-            askPong("ping")
+            val future = askPong("ping")
                     .flatMap(message => askPong("Ping" + message))
                     .recover{
-                        case Exception => "There was an error"
+                        case _: Exception => "There was an error"
                     }
+            val result = Await.result(future, 1 second)
+            result should equal("There was an error")
         }
 
         it("combining futures") {
@@ -74,13 +78,15 @@ class ScalaAskExampleTest extends FunSpecLike with Matchers {
             val futureAddition: Future[Int] = {
                 for (res1 <- future1; res2 <- future2) yield res1 + res2
             }
+            val additionResult = Await.result(futureAddition, 1 second)
+            assert(additionResult == 9)
         }
 
         it("dealing with lists of futures") {
             val listOfFutures: List[Future[String]] = List("Pong", "Pong", "failed").map(pong => askPong(pong))
             val futureOfList: Future[List[String]] = Future.sequence(listOfFutures)
 
-            Future.sequence(listOfFutures.map(future => future.recover{case Exception => ""}))
+            Future.sequence(listOfFutures.map(future => future.recover{case _: Exception => ""}))
         }
     }
 

@@ -66,6 +66,22 @@ class ScalaAskExampleTest extends FunSpecLike with Matchers {
                         case Exception => "There was an error"
                     })
         }
+
+        it("combining futures") {
+            val future1 = Future{4}
+            val future2 = Future{5}
+
+            val futureAddition: Future[Int] = {
+                for (res1 <- future1; res2 <- future2) yield res1 + res2
+            }
+        }
+
+        it("dealing with lists of futures") {
+            val listOfFutures: List[Future[String]] = List("Pong", "Pong", "failed").map(pong => askPong(pong))
+            val futureOfList: Future[List[String]] = Future.sequence(listOfFutures)
+
+            Future.sequence(listOfFutures.map(future => future.recover({case Exception => ""})))
+        }
     }
 
     def askPong(message: String): Future[String] = (pongActor ? message).mapTo[String]

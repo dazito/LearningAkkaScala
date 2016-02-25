@@ -62,9 +62,9 @@ class ScalaAskExampleTest extends FunSpecLike with Matchers {
         it("composing futures") {
             askPong("ping")
                     .flatMap(message => askPong("Ping" + message))
-                    .recover({
+                    .recover{
                         case Exception => "There was an error"
-                    })
+                    }
         }
 
         it("combining futures") {
@@ -80,7 +80,7 @@ class ScalaAskExampleTest extends FunSpecLike with Matchers {
             val listOfFutures: List[Future[String]] = List("Pong", "Pong", "failed").map(pong => askPong(pong))
             val futureOfList: Future[List[String]] = Future.sequence(listOfFutures)
 
-            Future.sequence(listOfFutures.map(future => future.recover({case Exception => ""})))
+            Future.sequence(listOfFutures.map(future => future.recover{case Exception => ""}))
         }
     }
 

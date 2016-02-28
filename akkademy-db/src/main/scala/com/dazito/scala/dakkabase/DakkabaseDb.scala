@@ -3,7 +3,7 @@ package com.dazito.scala.dakkabase
 import akka.actor.{Props, ActorSystem, Status, Actor}
 import akka.actor.Actor.Receive
 import akka.event.Logging
-import com.dazito.scala.dakkabase.messages.{UnknownMessageException, KeyNotFoundException, GetRequest, SetRequest}
+import com.dazito.scala.dakkabase.messages._
 
 import scala.collection.mutable
 
@@ -30,6 +30,19 @@ class DakkabaseDb extends Actor{
                 case Some(x) => sender() ! x
                 case None => sender() ! Status.Failure(new KeyNotFoundException(key))
             }
+        }
+        case SetIfNotExists(key, value) => {
+            log.info("Received Set If Noy Exists - key: {} - value  {}", key, value)
+            if ( ! map.contains(key) ) {
+                map.put(key, value)
+            }
+            sender() ! Status.Success
+        }
+        case DeleteMessage(key) => {
+            log.info("Received Delete Message - key: {}", key)
+            map.remove(key)
+
+            sender() ! Status.Success
         }
         case o => {
             log.info("Received unknown message: {}", o)

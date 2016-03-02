@@ -1,8 +1,10 @@
 package com.dazito.scala.dakkabase
 
-import akka.actor.{Props, ActorSystem, Status, Actor}
+import akka.actor.SupervisorStrategy.{Stop, Restart, Escalate, Resume}
+import akka.actor._
 import akka.actor.Actor.Receive
 import akka.event.Logging
+import com.dazito.scala.dakkabase.exceptions.{BokenPlateException, DrunkFoolException, TiredChefException, RestautantFireError}
 import com.dazito.scala.dakkabase.messages._
 
 import scala.collection.mutable
@@ -47,6 +49,16 @@ class DakkabaseDb extends Actor{
         case o => {
             log.info("Received unknown message: {}", o)
             Status.Failure(new UnknownMessageException())
+        }
+    }
+
+    override def supervisorStrategy: SupervisorStrategy = {
+        OneForOneStrategy() {
+            case BokenPlateException => Resume
+            case DrunkFoolException => Restart
+            case RestautantFireError => Escalate
+            case TiredChefException => Stop
+            case _ => Escalate
         }
     }
 }

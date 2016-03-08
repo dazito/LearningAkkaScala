@@ -2,7 +2,6 @@ package com.dazito.scala.dakkabase
 
 import akka.actor.SupervisorStrategy.{Stop, Restart, Escalate, Resume}
 import akka.actor._
-import akka.actor.Actor.Receive
 import akka.event.Logging
 import com.dazito.scala.dakkabase.exceptions.{BokenPlateException, DrunkFoolException, TiredChefException, RestautantFireError}
 import com.dazito.scala.dakkabase.messages._
@@ -54,10 +53,10 @@ class DakkabaseDb extends Actor{
 
     override def supervisorStrategy: SupervisorStrategy = {
         OneForOneStrategy() {
-            case BokenPlateException => Resume
-            case DrunkFoolException => Restart
-            case RestautantFireError => Escalate
-            case TiredChefException => Stop
+            case _: BokenPlateException => Resume
+            case _: DrunkFoolException => Restart
+            case _: RestautantFireError => Escalate
+            case _: TiredChefException => Stop
             case _ => Escalate
         }
     }

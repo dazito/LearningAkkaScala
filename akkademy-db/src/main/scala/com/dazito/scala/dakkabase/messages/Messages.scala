@@ -11,4 +11,5 @@ case class SetRequest(key: String, value: Object)
 case class UnknownMessageException () extends Exception
 case class Connected()
 case class Disconnected()
+case class Request()
 

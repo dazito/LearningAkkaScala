@@ -45,6 +45,12 @@ class DakkabaseDb extends Actor{
 
             sender() ! Status.Success
         }
+        case ListSetRequest(list) => {
+            log.info("Received List Set Request - size: {}", list.size)
+            list.foreach(setRequest => map.put(setRequest.key, setRequest.value))
+
+            sender() ! Status.Success
+        }
         case o => {
             log.info("Received unknown message: {}", o)
             Status.Failure(new UnknownMessageException())

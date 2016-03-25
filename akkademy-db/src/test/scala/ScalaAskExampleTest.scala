@@ -1,7 +1,9 @@
+import akka.actor.Status.{Success}
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
-import com.dazito.scala.dakkabase.ScalaPongActor
+import com.dazito.scala.dakkabase.{DakkabaseDb, ScalaPongActor}
+import com.dazito.scala.dakkabase.messages.{ListSetRequest, SetRequest}
 import org.scalatest.{FunSpecLike, Matchers}
 
 import scala.concurrent.duration._
@@ -14,6 +16,7 @@ class ScalaAskExampleTest extends FunSpecLike with Matchers {
     val system = ActorSystem()
     implicit val timeout = Timeout(5 seconds);
     val pongActor = system.actorOf(Props(classOf[ScalaPongActor]))
+    val dakkabaseActor = system.actorOf(Props(classOf[DakkabaseDb]))
 
     describe("Pong actor") {
         it("should responde with Pong") {
@@ -87,6 +90,15 @@ class ScalaAskExampleTest extends FunSpecLike with Matchers {
             val futureOfList: Future[List[String]] = Future.sequence(listOfFutures)
 
             Future.sequence(listOfFutures.map(future => future.recover{case _: Exception => ""}))
+        }
+
+        it("dealing with batch insert") {
+            val setRequestList = ListSetRequest(List(new SetRequest("batchInsert1", "value")))
+            val future = dakkabaseActor ? setRequestList
+
+            val additionResult = Await.result(future, 1 second)
+
+            assert(additionResult.equals(Success))
         }
     }
 

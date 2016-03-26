@@ -1,6 +1,6 @@
+import com.dazito.scala.dakkabase.messages.SetRequest
 import org.scalatest.{BeforeAndAfterEach, Matchers, FunSpecLike}
 import akka.actor.ActorSystem
-import com.dazito.scala.dakkabase.messages.SetRequest
 import akka.testkit.TestActorRef
 import com.dazito.scala.dakkabase.DakkabaseDb
 

@@ -13,4 +13,5 @@ case class Connected()
 case class Disconnected()
 case class Request()
 case class ListSetRequest(setRequestList: List[SetRequest])
+case class ParseArticle(html: String)
 

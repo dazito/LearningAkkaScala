@@ -3,10 +3,12 @@ package com.dazito.scala.dakkabase
 import akka.actor.SupervisorStrategy.{Stop, Restart, Escalate, Resume}
 import akka.actor._
 import akka.event.Logging
+import akka.routing.{Broadcast, RoundRobinGroup, RoundRobinPool}
 import com.dazito.scala.dakkabase.exceptions.{BokenPlateException, DrunkFoolException, TiredChefException, RestautantFireError}
 import com.dazito.scala.dakkabase.messages._
 
 import scala.collection.mutable
+
 
 /**
  * Created by daz on 20/02/2016.
@@ -71,4 +73,33 @@ class DakkabaseDb extends Actor{
 object Main extends App {
     val system = ActorSystem.create("dakkabase-scala")
     system.actorOf(Props[DakkabaseDb], name = "dakkabase-db")
+
+    // Create a router actor with 8 actors
+    // We can also pass a supervision startegy to the workerRouter to apply in the routees
+    // .withSupervision(strategy) on the RoundRobinPool object
+    system.actorOf(Props.create(classOf[ArticleParserActor]).withRouter(new RoundRobinPool(8)))
+
+    // Create a router with a predefined list os actors
+    val actors: scala.collection.immutable.Iterable[String] = scala.collection.immutable.Iterable("pathToActors")
+    val router: ActorRef = system.actorOf(RoundRobinGroup(actors).props(), "router")
+
+    // Broadcast a message to all the actors in the pool/group
+    // router ! Broadcast("Broadcast message!")
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

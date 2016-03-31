@@ -85,6 +85,9 @@ object Main extends App {
 
     // Broadcast a message to all the actors in the pool/group
     // router ! Broadcast("Broadcast message!")
+
+    // Dispatchers
+    val actorWithDispatcher = system.actorOf(Props.create(classOf[DummyActorDispatchersExample]).withDispatcher("custom-dispatcher"))
 }
 
 

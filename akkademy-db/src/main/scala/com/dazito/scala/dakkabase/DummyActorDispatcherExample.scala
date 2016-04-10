@@ -1,9 +1,8 @@
 package com.dazito.scala.dakkabase
 
-import akka.actor.Actor
-import akka.actor.Actor.Receive
+import akka.actor.{Actor, Status}
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Created by daz on 01/04/2016.
@@ -13,7 +12,8 @@ class DummyActorDispatchersExample extends Actor{
 
     override def receive: Receive = {
         val s = "Hello"
-        case _ => {
+
+        case _: String => {
             val future: Future[String] = Future {
                 s + " future!"
             }(blockingIoDispatcher)
@@ -22,5 +22,6 @@ class DummyActorDispatchersExample extends Actor{
             }
             print("Message received")
         }
+        Status.Success
     }
 }

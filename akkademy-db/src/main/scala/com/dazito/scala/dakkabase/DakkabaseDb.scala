@@ -1,10 +1,10 @@
 package com.dazito.scala.dakkabase
 
-import akka.actor.SupervisorStrategy.{Stop, Restart, Escalate, Resume}
+import akka.actor.SupervisorStrategy.{Escalate, Restart, Resume, Stop}
 import akka.actor._
 import akka.event.Logging
-import akka.routing.{Broadcast, RoundRobinGroup, RoundRobinPool}
-import com.dazito.scala.dakkabase.exceptions.{BokenPlateException, DrunkFoolException, TiredChefException, RestautantFireError}
+import akka.routing.{BalancingPool, Broadcast, RoundRobinGroup, RoundRobinPool}
+import com.dazito.scala.dakkabase.exceptions.{BokenPlateException, DrunkFoolException, RestautantFireError, TiredChefException}
 import com.dazito.scala.dakkabase.messages._
 
 import scala.collection.mutable
@@ -23,7 +23,7 @@ class DakkabaseDb extends Actor{
             log.info("Received Set Request - key: {} | value: {}", key, value)
             map.put(key, value)
 
-            // Let the send know it succeed
+            // Let the sender know it succeed
             sender() ! Status.Success
         }
         case GetRequest(key) => {
@@ -88,6 +88,16 @@ object Main extends App {
 
     // Dispatchers
     val actorWithDispatcher = system.actorOf(Props.create(classOf[DummyActorDispatchersExample]).withDispatcher("custom-dispatcher"))
+
+    val actorList: List[ActorRef] = (0 to 5).map(x => {
+        system.actorOf(Props(classOf[ArticleParserActor]).withDispatcher("article-parsing-dispatcher"))
+    }).toList
+
+    val workerRouter = system.actorOf(RoundRobinGroup(actorList.map(x => x.path.toStringWithoutAddress).toList).props(), "workerRouter")
+    workerRouter ! new ParseArticle("<strong>Some HTML</strong>")
+
+    // Balancing Pool with a custom dispatcher
+    val workerRouterBalancingPool = system.actorOf(BalancingPool(8).props(Props(classOf[ArticleParserActor])), "balancing-pool-dispatcher")
 }
 
 

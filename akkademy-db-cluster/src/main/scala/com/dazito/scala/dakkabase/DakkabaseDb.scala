@@ -2,6 +2,7 @@ package com.dazito.scala.dakkabase
 
 import akka.actor.SupervisorStrategy.{Escalate, Restart, Resume, Stop}
 import akka.actor._
+import akka.contrib.pattern.ClusterReceptionistExtension
 import akka.event.Logging
 import akka.routing.{BalancingPool, Broadcast, RoundRobinGroup, RoundRobinPool}
 import com.dazito.scala.dakkabase.exceptions._
@@ -73,7 +74,8 @@ class DakkabaseDb extends Actor{
 object Main extends App {
     val system = ActorSystem("dakkabase-scala-cluster")
     val clusterController = system.actorOf(Props[ClusterController], name = "clusterController")
-
+    val workers = system.actorOf(BalancingPool(2).props(Props(classOf[ArticleParserActor])), "workers")
+    ClusterReceptionistExtension(system).registerService(workers)
 }
 
 

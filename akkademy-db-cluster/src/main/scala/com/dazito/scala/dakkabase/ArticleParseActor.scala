@@ -9,8 +9,9 @@ import de.l3s.boilerpipe.extractors.ArticleExtractor
  */
 class ArticleParserActor extends Actor {
     override def receive: Receive = {
-        case ParseArticle(html) => val body: String = ArticleParser(html)
+        case html: String => val body: String = ArticleParser(html)
             sender() ! body
+        case _ => println("Default case - no match!")
     }
 }
 

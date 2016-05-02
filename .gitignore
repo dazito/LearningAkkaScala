@@ -16,3 +16,4 @@ project/plugins/project/
 .scala_dependencies
 .worksheet
 akkademy-db-cluster/.idea/
+akkademy-circuit-breaker/.idea/
